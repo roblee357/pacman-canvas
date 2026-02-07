@@ -1453,20 +1453,20 @@ function drawPacman() {
 		});
 
 		// highscore form submit event listener
-		$('body').on('click', '#score-submit', function () {
-			console.log("submit highscore pressed");
-			if ($('#playerName').val() === "" || $('#playerName').val() === undefined) {
-				$('#form-validator').html("Please enter a name<br/>");
-			} else {
-				$('#form-validator').html("");
-				addHighscore();
-			}
-		});
+		// $('body').on('click', '#score-submit', function () {
+		// 	console.log("submit highscore pressed");
+		// 	if ($('#playerName').val() === "" || $('#playerName').val() === undefined) {
+		// 		$('#form-validator').html("Please enter a name<br/>");
+		// 	} else {
+		// 		$('#form-validator').html("");
+		// 		addHighscore();
+		// 	}
+		// });
 
-		$('body').on('click', '#show-highscore', function () {
-			game.showContent('highscore-content');
-			getHighscore();
-		});
+		// $('body').on('click', '#show-highscore', function () {
+		// 	game.showContent('highscore-content');
+		// 	getHighscore();
+		// });
 
 		// Hammerjs Touch Events
 		Hammer('.container').on("swiperight", function (event) {
