@@ -27,6 +27,9 @@ const POWERPILL_POINTS = 50;
 const GHOST_POINTS = 100;
 const HIGHSCORE_ENABLED = true;
 
+const pacmanImg = new Image();
+pacmanImg.src = 'pacman-full.png';
+
 
 function geronimo() {
 	/* ----- Global Variables ---------------------------------------- */
@@ -1134,7 +1137,7 @@ function geronimo() {
 		}
 		this.checkDirectionChange = function () {
 			if (this.directionWatcher.get() != null) {
-				console.groupCollapsed('checkDirectionChange');
+				// console.groupCollapsed('checkDirectionChange');
 				//console.log("next Direction: "+directionWatcher.get().name);
 
 				if ((this.stuckX == 1) && this.directionWatcher.get() == right) this.directionWatcher.set(null);
@@ -1287,6 +1290,82 @@ function geronimo() {
 			return (this.posY - (this.posY % 30)) / 30;
 		}
 	}
+// At the top of the file, or inside the pacman constructor
+let lastMoveDirection = { dirX: 1, dirY: 0 };   // start facing right (or whatever default you prefer)
+
+function drawPacman() {
+    const centerX = pacman.getCenterX();
+    const centerY = pacman.getCenterY();
+    const radius  = pacman.radius;
+
+    context.save();
+    context.translate(centerX, centerY);
+
+    // 1. Draw the PNG always facing right (no rotation)
+    const imgSize = radius * 3;
+    context.drawImage(
+        pacmanImg,
+        -radius*1.5,
+        -radius*1.5,
+        imgSize,
+        imgSize
+    );
+
+    // 2. Update last direction only when actually moving
+    if (pacman.dirX !== 0 || pacman.dirY !== 0) {
+        lastMoveDirection = { dirX: pacman.dirX, dirY: pacman.dirY };
+    }
+
+    // 3. Compute mouth center angle from the *last known movement direction*
+    let mouthCenterAngle = 0;  // default = right
+
+    if (lastMoveDirection.dirX ===  0 && lastMoveDirection.dirY ===  1) mouthCenterAngle =  Math.PI / 2;   // down
+    if (lastMoveDirection.dirX === -1 && lastMoveDirection.dirY ===  0) mouthCenterAngle =  Math.PI;       // left
+    if (lastMoveDirection.dirX ===  0 && lastMoveDirection.dirY === -1) mouthCenterAngle = -Math.PI / 2;   // up
+    // right stays at 0
+
+    // 4. Calculate opening (use your current normalized version)
+    var rawOpening = Math.abs(pacman.angle1 - pacman.angle2) / 2;
+    var opening = Math.min(rawOpening*4, 0.8);   // or your preferred cap
+    opening = Math.max(0.08, opening);
+	// console.log(opening,pacman.angle1,pacman.angle2)
+	
+
+    if (pacman.dirX > 0 ) {
+            // rawOpening = (rawOpening -.75)*2 ;
+			//  opening = Math.min(rawOpening, 0.1)   // or your preferred cap
+			opening = Math.max(0.08,(rawOpening-.81)*7); //Math.max(0.8, opening);
+			
+    }
+
+	console.log(pacman.dirX, rawOpening, opening,pacman.angle1,pacman.angle2)
+    // Optional: smaller opening when truly idle (no direction at all yet)
+    // if (lastMoveDirection.dirX === 0 && lastMoveDirection.dirY === 0) {
+    //     opening = 0.06;
+    // }
+
+    // 5. Draw mouth wedge using the remembered direction
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.arc(
+        0, 0,
+        radius*1.5,
+        mouthCenterAngle - opening,
+        mouthCenterAngle + opening,
+        false
+    );
+    context.closePath();
+
+    context.fillStyle = 'black';
+    context.shadowBlur  = 2;
+    context.shadowColor = 'black';
+    context.fill();
+
+    context.restore();
+}
+
+
+
 	pacman.prototype = new Figure();
 	var pacman = new pacman();
 	game.buildWalls();
@@ -1513,6 +1592,7 @@ function geronimo() {
 
 		if (game.started) {
 			// Ghosts
+			drawPacman(context);
 			pinky.draw(context);
 			blinky.draw(context);
 			inky.draw(context);
@@ -1520,13 +1600,13 @@ function geronimo() {
 
 
 			// Pac Man
-			context.beginPath();
-			context.fillStyle = "Yellow";
-			context.strokeStyle = "Yellow";
-			context.arc(pacman.posX + pacman.radius, pacman.posY + pacman.radius, pacman.radius, pacman.angle1 * Math.PI, pacman.angle2 * Math.PI);
-			context.lineTo(pacman.posX + pacman.radius, pacman.posY + pacman.radius);
-			context.stroke();
-			context.fill();
+			// context.beginPath();
+			// context.fillStyle = "Yellow";
+			// context.strokeStyle = "Yellow";
+			// context.arc(pacman.posX + pacman.radius, pacman.posY + pacman.radius, pacman.radius, pacman.angle1 * Math.PI, pacman.angle2 * Math.PI);
+			// context.lineTo(pacman.posX + pacman.radius, pacman.posY + pacman.radius);
+			// context.stroke();
+			// context.fill();
 		}
 
 	}
